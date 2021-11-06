@@ -2,19 +2,6 @@ finviz-api
 ##########
 *Unofficial fork of unofficial Python API for FinViz*
 
-.. image:: https://badge.fury.io/py/finviz.svg
-    :target: https://badge.fury.io/py/finviz
-
-.. image:: https://img.shields.io/badge/python-3.6-blue.svg
-    :target: https://www.python.org/downloads/release/python-360/
-
-.. image:: https://pepy.tech/badge/finviz
-    :target: https://pepy.tech/project/finviz
-
-.. image:: http://hits.dwyl.io/mariostoev/finviz.svg
-    :target: http://hits.dwyl.io/mariostoev/finviz
-
-
 Downloading & Installation
 ---------------------------
 
