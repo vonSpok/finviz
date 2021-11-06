@@ -162,9 +162,9 @@ You can read the rest of the documentation inside the docstrings.
 
 Contributing
 =============
-It's a unofficial fork of original finviz_ package, provided by mariostoev_.
+It's a unofficial fork of original FinViz API_ package, provided by mariostoev_.
 
-.. _finviz: https://github.com/mariostoev/finviz
+.. _FinViz API: https://github.com/mariostoev/finviz
 .. _mariostoev: https://github.com/mariostoev
 
 Disclaimer
