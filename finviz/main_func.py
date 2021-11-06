@@ -3,175 +3,196 @@ from datetime import datetime
 from finviz.helper_functions.request_functions import http_request_get
 from finviz.helper_functions.scraper_functions import get_table
 
-STOCK_URL = "https://finviz.com/quote.ashx"
-NEWS_URL = "https://finviz.com/news.ashx"
-CRYPTO_URL = "https://finviz.com/crypto_performance.ashx"
-STOCK_PAGE = {}
+
+class Stock:
+    '''
+    Base class for ticker data fetching.
+    '''
+
+    STOCK_URL:str   = 'https://finviz.com/quote.ashx'
+    NEWS_URL:str    = 'https://finviz.com/news.ashx'
+    CRYPTO_URL:str  = 'https://finviz.com/crypto_performance.ashx'
+    STOCK_PAGE:dict = {}
 
 
-def get_page(ticker):
-    global STOCK_PAGE
+    def __init__(self, session=None):
+        '''
 
-    if ticker not in STOCK_PAGE:
-        STOCK_PAGE[ticker], _ = http_request_get(
-            url=STOCK_URL, payload={"t": ticker}, parse=True
-        )
-
-
-def get_stock(ticker):
-    """
-    Returns a dictionary containing stock data.
-
-    :param ticker: stock symbol
-    :type ticker: str
-    :return dict
-    """
-
-    get_page(ticker)
-    page_parsed = STOCK_PAGE[ticker]
-
-    title = page_parsed.cssselect('table[class="fullview-title"]')[0]
-    keys = ["Company", "Sector", "Industry", "Country"]
-    fields = [f.text_content() for f in title.cssselect('a[class="tab-link"]')]
-    data = dict(zip(keys, fields))
-
-    all_rows = [
-        row.xpath("td//text()")
-        for row in page_parsed.cssselect('tr[class="table-dark-row"]')
-    ]
-
-    for row in all_rows:
-        for column in range(0, 11, 2):
-            data[row[column]] = row[column + 1]
-
-    return data
+        :param session: session type object
+        '''
+        self.session = session
 
 
-def get_insider(ticker):
-    """
-    Returns a list of dictionaries containing all recent insider transactions.
+    def _get_page(self, ticker:str):
+        if ticker not in self.STOCK_PAGE:
+            self.STOCK_PAGE[ticker], _ = http_request_get(
+                url=self.STOCK_URL,
+                session=self.session,
+                payload={'t': ticker},
+                parse=True
+            )
 
-    :param ticker: stock symbol
-    :return: list
-    """
-
-    get_page(ticker)
-    page_parsed = STOCK_PAGE[ticker]
-    table = page_parsed.cssselect('table[class="body-table"]')[0]
-    headers = table[0].xpath("td//text()")
-    data = [dict(zip(headers, row.xpath("td//text()"))) for row in table[1:]]
-
-    return data
+        return self.STOCK_PAGE[ticker]
 
 
-def get_news(ticker):
-    """
-    Returns a list of sets containing news headline and url
+    def get_fund(self, ticker:str) -> dict:
+        '''
+        Returns a dictionary containing stock fundamental data.
 
-    :param ticker: stock symbol
-    :return: list
-    """
+        :param ticker: stock symbol
+        :type ticker: str
+        :return dict
+        '''
 
-    get_page(ticker)
-    page_parsed = STOCK_PAGE[ticker]
-    rows = page_parsed.cssselect('table[id="news-table"]')[0].xpath('./tr[not(@id)]')
+        page_parsed = self._get_page(ticker)
 
-    results = []
-    date = None
-    for row in rows:
-        raw_timestamp = row.xpath("./td")[0].xpath('text()')[0][0:-2]
+        title = page_parsed.cssselect('table[class="fullview-title"]')[0]
+        keys = ['Company', 'Sector', 'Industry', 'Country']
+        fields = [f.text_content() for f in title.cssselect('a[class="tab-link"]')]
+        data = dict(zip(keys, fields))
 
-        if len(raw_timestamp) > 8:
-            parsed_timestamp = datetime.strptime(raw_timestamp, "%b-%d-%y %I:%M%p")
-            date = parsed_timestamp.date()
-        else:
-            parsed_timestamp = datetime.strptime(raw_timestamp, "%I:%M%p").replace(
-                year=date.year, month=date.month, day=date.day)
+        all_rows = [
+            row.xpath('td//text()')
+            for row in page_parsed.cssselect('tr[class="table-dark-row"]')
+        ]
 
-        results.append((
-            parsed_timestamp.strftime("%Y-%m-%d %H:%M"),
-            row.xpath("./td")[1].cssselect('a[class="tab-link-news"]')[0].xpath("text()")[0],
-            row.xpath("./td")[1].cssselect('a[class="tab-link-news"]')[0].get("href"),
-            row.xpath("./td")[1].cssselect('div[class="news-link-right"] span')[0].xpath("text()")[0][1:]
-        ))
+        for row in all_rows:
+            for column in range(0, 11, 2):
+                data[row[column]] = row[column + 1]
 
-    return results
+        return data
 
 
-def get_all_news():
-    """
-    Returns a list of sets containing time, headline and url
-    :return: list
-    """
+    def get_insider(self, ticker:str) -> list:
+        '''
+        Returns a list of dictionaries containing all recent insider transactions.
 
-    page_parsed, _ = http_request_get(url=NEWS_URL, parse=True)
-    all_dates = [
-        row.text_content() for row in page_parsed.cssselect('td[class="nn-date"]')
-    ]
-    all_headlines = [
-        row.text_content() for row in page_parsed.cssselect('a[class="nn-tab-link"]')
-    ]
-    all_links = [
-        row.get("href") for row in page_parsed.cssselect('a[class="nn-tab-link"]')
-    ]
+        :param ticker: stock symbol
+        :return: list
+        '''
 
-    return list(zip(all_dates, all_headlines, all_links))
+        page_parsed = self._get_page(ticker)
+
+        table = page_parsed.cssselect('table[class="body-table"]')[0]
+        headers = table[0].xpath('td//text()')
+        data = [dict(zip(headers, row.xpath('td//text()'))) for row in table[1:]]
+
+        return data
 
 
-def get_crypto(pair):
-    """
+    def get_news(self, ticker:str) -> list:
+        '''
+        Returns a list of sets containing news headline and url
 
-    :param pair: crypto pair
-    :return: dictionary
-    """
+        :param ticker: stock symbol
+        :return: list
+        '''
 
-    page_parsed, _ = http_request_get(url=CRYPTO_URL, parse=True)
-    page_html, _ = http_request_get(url=CRYPTO_URL, parse=False)
-    crypto_headers = page_parsed.cssselect('tr[valign="middle"]')[0].xpath("td//text()")
-    crypto_table_data = get_table(page_html, crypto_headers)
+        page_parsed = self._get_page(ticker)
 
-    return crypto_table_data[pair]
+        rows = page_parsed.cssselect('table[id="news-table"]')[0].xpath('./tr[not(@id)]')
+
+        results = []
+        date = None
+        for row in rows:
+            raw_timestamp = row.xpath('./td')[0].xpath('text()')[0][0:-2]
+
+            if len(raw_timestamp) > 8:
+                parsed_timestamp = datetime.strptime(raw_timestamp, '%b-%d-%y %I:%M%p')
+                date = parsed_timestamp.date()
+            elif date:
+                parsed_timestamp = datetime.strptime(raw_timestamp, '%I:%M%p').replace(
+                    year=date.year,
+                    month=date.month,
+                    day=date.day
+                )
+
+            results.append((
+                parsed_timestamp.strftime('%Y-%m-%d %H:%M'),
+                row.xpath('./td')[1].cssselect('a[class="tab-link-news"]')[0].xpath('text()')[0],
+                row.xpath('./td')[1].cssselect('a[class="tab-link-news"]')[0].get('href'),
+                row.xpath('./td')[1].cssselect('div[class="news-link-right"] span')[0].xpath('text()')[0][1:]
+            ))
+
+        return results
 
 
-def get_analyst_price_targets(ticker, last_ratings=5):
-    """
-    Returns a list of dictionaries containing all analyst ratings and Price targets
-     - if any of 'price_from' or 'price_to' are not available in the DATA, then those values are set to default 0
-    :param ticker: stock symbol
-    :param last_ratings: most recent ratings to pull
-    :return: list
-    """
+    def get_all_news(self) -> list:
+        '''
+        Returns a list of sets containing time, headline and url
+        :return: list
+        '''
 
-    analyst_price_targets = []
+        page_parsed, _ = http_request_get(url=self.NEWS_URL, parse=True)
+        all_dates = [
+            row.text_content() for row in page_parsed.cssselect('td[class="nn-date"]')
+        ]
+        all_headlines = [
+            row.text_content() for row in page_parsed.cssselect('a[class="nn-tab-link"]')
+        ]
+        all_links = [
+            row.get('href') for row in page_parsed.cssselect('a[class="nn-tab-link"]')
+        ]
 
-    try:
-        get_page(ticker)
-        page_parsed = STOCK_PAGE[ticker]
-        table = page_parsed.cssselect('table[class="fullview-ratings-outer"]')[0]
+        return list(zip(all_dates, all_headlines, all_links))
 
-        for row in table:
-            rating = row.xpath("td//text()")
-            rating = [val.replace("→", "->").replace("$", "") for val in rating if val != '\n']
-            rating[0] = datetime.strptime(rating[0], "%b-%d-%y").strftime("%Y-%m-%d")
 
-            data = {
-                "date":     rating[0],
-                "category": rating[1],
-                "analyst":  rating[2],
-                "rating":   rating[3],
-            }
-            if len(rating) == 5:
-                if "->" in rating[4]:
-                    rating.extend(rating[4].replace(" ", "").split("->"))
-                    del rating[4]
-                    data["target_from"] = float(rating[4])
-                    data["target_to"] = float(rating[5])
-                else:
-                    data["target"] = float(rating[4])
+    def get_crypto(self, pair:str) -> dict:
+        '''
+        Get crypto pair information.
 
-            analyst_price_targets.append(data)
-    except Exception as e:
-        # print("-> Exception: %s parsing analysts' ratings for ticker %s" % (str(e), ticker))
-        pass
+        :param pair: crypto pair
+        :return: dictionary
+        '''
 
-    return analyst_price_targets[:last_ratings]
+        page_parsed, _ = http_request_get(url=self.CRYPTO_URL, session=self.session, parse=True)
+        page_html, _ = http_request_get(url=self.CRYPTO_URL, session=self.session, parse=False)
+
+        crypto_headers = page_parsed.cssselect('tr[valign="middle"]')[0].xpath('td//text()')
+        crypto_table_data = get_table(page_html, crypto_headers)
+
+        return crypto_table_data[pair]
+
+
+    def get_analyst_price_targets(self, ticker:str, last_ratings:int=5) -> list:
+        '''
+        Returns a list of dictionaries containing all analyst ratings and Price targets
+        - if any of 'price_from' or 'price_to' are not available in the DATA, then those values are set to default 0
+        :param ticker: stock symbol
+        :param last_ratings: most recent ratings to pull
+        :return: list
+        '''
+
+        analyst_price_targets = []
+
+        try:
+            page_parsed = self._get_page(ticker)
+
+            table = page_parsed.cssselect('table[class="fullview-ratings-outer"]')[0]
+
+            for row in table:
+                rating = row.xpath('td//text()')
+                rating = [val.replace('→', '->').replace('$', '') for val in rating if val != '\n']
+                rating[0] = datetime.strptime(rating[0], '%b-%d-%y').strftime('%Y-%m-%d')
+
+                data = {
+                    'date':     rating[0],
+                    'category': rating[1],
+                    'analyst':  rating[2],
+                    'rating':   rating[3],
+                }
+                if len(rating) == 5:
+                    if '->' in rating[4]:
+                        rating.extend(rating[4].replace(' ', '').split('->'))
+                        del rating[4]
+                        data['target_from'] = float(rating[4])
+                        data['target_to'] = float(rating[5])
+                    else:
+                        data['target'] = float(rating[4])
+
+                analyst_price_targets.append(data)
+        except Exception as e:
+            # print('-> Exception: %s parsing analysts' ratings for ticker %s' % (str(e), ticker))
+            pass
+
+        return analyst_price_targets[:last_ratings]
