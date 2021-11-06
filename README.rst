@@ -31,6 +31,29 @@ FinViz_ aims to make market information accessible and provides a lot of data in
 
 Any quotes data displayed on finviz.com is delayed by 15 minutes for NASDAQ, and 20 minutes for NYSE and AMEX. This API should **NOT** be used for live trading, it's main purpose is financial analysis, research, and data scraping.
 
+Individual stocks
+==================
+
+.. code:: python
+
+    from finviz import Stock
+
+    fetcher = Stock()
+    # or use your specific `session` type object, like `requests` with `get` method
+    fetcher = Stock(session=requests)
+
+    fund    = fetcher.get_fund('AAPL') # get fundamental info
+    insider = fetcher.get_insider('АAPL') # get latest insider transactions
+    news    = fetcher.get_news('AAPL') # get latest news
+    targets = fetcher.get_analyst_price_targets('AAPL') # get all analyst ratings and price targets
+
+    print(fund, insider, news, targets)
+
+    #{'Index': 'DJIA S&P500', 'P/E': '12.91', 'EPS (ttm)': '12.15',...
+    #[{'Insider Trading': 'KONDO CHRIS', 'Relationship': 'Principal Accounting Officer', 'Date': 'Nov 19', 'Transaction': 'Sale', 'Cost': '190.00', '#Shares': '3,408', 'Value ($)': '647,520', '#Shares Total': '8,940', 'SEC Form 4': 'Nov 21 06:31 PM'},...
+    #[('Chinas Economy Slows to the Weakest Pace Since 2009', 'https://finance.yahoo.com/news/china-economy-slows-weakest-pace-      020040147.html'),...
+    #[{'date': '2019-10-24', 'category': 'Reiterated', 'analyst': 'UBS', 'rating': 'Buy', 'price_from': 235, 'price_to': 275}, ...
+
 Using Screener
 ===============
 
@@ -66,6 +89,27 @@ To make matters easier inside the code you won't refer to tables by their number
     print(stock_list)
 
 .. image:: https://i.imgur.com/cb7UdxB.png
+
+Downloading charts
+===================
+
+.. code:: python
+
+    # Monthly, Candles, Large, No Technical Analysis
+    stock_list.get_charts(period='m', chart_type='c', size='l', ta='0')
+
+    # period='d' > daily
+    # period='w' > weekly
+    # period='m' > monthly
+
+    # chart_type='c' > candle
+    # chart_type='l' > lines
+
+    # size='m' > small
+    # size='l' > large
+
+    # ta='1' > display technical analysis
+    # ta='0' > ignore technical analysis
 
 Using Portfolio
 ================
@@ -110,50 +154,6 @@ Note that, if any *optional* fields are left empty, the API will assign them tod
 .. code:: python
 
     portfolio.create_portfolio('<portfolio-name>', '<path-to-csv-file>')
-
-Individual stocks
-==================
-
-.. code:: python
-
-    from finviz import Stock
-
-    fetcher = Stock()
-    # or use your specific `session` type object, like `requests` with `get` method
-    fetcher = Stock(session=requests)
-
-    fund    = fetcher.get_fund('AAPL') # get fundamental info
-    insider = fetcher.get_insider('АAPL') # get latest insider transactions
-    news    = fetcher.get_news('AAPL') # get latest news
-    targets = fetcher.get_analyst_price_targets('AAPL') # get all analyst ratings and price targets
-
-    print(fund, insider, news, targets)
-
-    #{'Index': 'DJIA S&P500', 'P/E': '12.91', 'EPS (ttm)': '12.15',...
-    #[{'Insider Trading': 'KONDO CHRIS', 'Relationship': 'Principal Accounting Officer', 'Date': 'Nov 19', 'Transaction': 'Sale', 'Cost': '190.00', '#Shares': '3,408', 'Value ($)': '647,520', '#Shares Total': '8,940', 'SEC Form 4': 'Nov 21 06:31 PM'},...
-    #[('Chinas Economy Slows to the Weakest Pace Since 2009', 'https://finance.yahoo.com/news/china-economy-slows-weakest-pace-      020040147.html'),...
-    #[{'date': '2019-10-24', 'category': 'Reiterated', 'analyst': 'UBS', 'rating': 'Buy', 'price_from': 235, 'price_to': 275}, ...
-
-Downloading charts
-===================
-
-.. code:: python
-
-    # Monthly, Candles, Large, No Technical Analysis
-    stock_list.get_charts(period='m', chart_type='c', size='l', ta='0')
-
-    # period='d' > daily
-    # period='w' > weekly
-    # period='m' > monthly
-
-    # chart_type='c' > candle
-    # chart_type='l' > lines
-
-    # size='m' > small
-    # size='l' > large
-
-    # ta='1' > display technical analysis
-    # ta='0' > ignore technical analysis
 
 Documentation
 ==============
