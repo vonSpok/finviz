@@ -34,7 +34,8 @@ def get_table(page_html: requests.Response, headers, rows=None, **kwargs):
                 break
     else:
         # Zip each row values to the headers and append them to data_sets
-        [data_sets.append(dict(zip(headers, row))) for row in all_rows]
+        for row in all_rows:
+            data_sets.append(dict(zip(headers, row)))
 
     return data_sets
 

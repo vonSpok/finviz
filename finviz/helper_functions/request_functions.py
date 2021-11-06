@@ -17,7 +17,11 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def http_request_get(
-    url, session=None, payload=None, parse=True, user_agent=generate_user_agent()
+    url:str,
+    session=None,
+    payload:dict=None,
+    parse:bool=True,
+    user_agent=generate_user_agent()
 ):
     """ Sends a GET HTTP request to a website and returns its HTML content and full url address. """
 
@@ -89,7 +93,7 @@ class Connector:
         self.user_agent = user_agent
         self.arguments = args
         self.css_select = css_select
-        self.data = []
+        self.data:list = []
 
     async def __http_request__async(
         self,
