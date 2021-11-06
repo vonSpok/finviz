@@ -2,7 +2,7 @@ finviz-api
 ##########
 *Unofficial fork of unofficial Python API for FinViz*
 
-It's a unofficial fork of original FinViz API package, provided by mariostoev_.
+It's a fork of original FinViz API, provided by mariostoev_.
 
 .. _mariostoev: https://github.com/mariostoev
 
