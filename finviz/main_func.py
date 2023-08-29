@@ -86,7 +86,7 @@ class Stock:
         '''
 
         page_parsed = self._get_page(ticker)
-        outer_table = page_parsed.cssselect('table[class="body-table"]')
+        outer_table = page_parsed.cssselect('table[class="body-table insider-trading-table"]')
 
         if len(outer_table) == 0:
             return []
@@ -171,7 +171,7 @@ class Stock:
         page_parsed, _ = http_request_get(url=self.CRYPTO_URL, session=self.session, parse=True)
         page_html, _ = http_request_get(url=self.CRYPTO_URL, session=self.session, parse=False)
 
-        crypto_headers = page_parsed.cssselect('tr[valign="middle"]')[0].xpath('td//text()')
+        crypto_headers = page_parsed.cssselect('tr[valign="middle"]')[0].xpath("td//text()")
         crypto_table_data = get_table(page_html, crypto_headers)
 
         return crypto_table_data[pair]

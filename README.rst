@@ -2,7 +2,7 @@ finviz-api
 ##########
 *Unofficial fork of unofficial Python API for FinViz*
 
-It's a fork of original FinViz API, provided by mariostoev_.
+It's a fork of original FinViz API, provided by mariostoev_. This fork allowe to use specific sessions during requests.
 
 .. _mariostoev: https://github.com/mariostoev
 
@@ -29,9 +29,12 @@ Individual stocks
 
     from finviz import Stock
 
+    # create common fetcher object
     fetcher = Stock()
     # or use your specific `session` type object, like `requests` with `get` method
-    fetcher = Stock(session=requests)
+    # which you can customize, e.g. by HTTPAdapter
+    session = requests.Session()
+    fetcher = Stock(session=session)
 
     fund    = fetcher.get_fund('AAPL') # get fundamental info
     insider = fetcher.get_insider('АAPL') # get latest insider transactions

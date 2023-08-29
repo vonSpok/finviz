@@ -33,8 +33,7 @@ def get_table(page_html: requests.Response, headers, rows=None, **kwargs):
                 break
     else:
         # Zip each row values to the headers and append them to data_sets
-        for row in all_rows:
-            data_sets.append(dict(zip(headers, row)))
+        [data_sets.append(dict(zip(headers, row))) for row in all_rows]
 
     return data_sets
 
@@ -42,15 +41,16 @@ def get_table(page_html: requests.Response, headers, rows=None, **kwargs):
 def get_total_rows(page_content):
     """ Returns the total number of rows(results). """
 
-    total_element = page_content.cssselect('td[width="140"]')
-    total_number = (
-        etree.tostring(total_element[0]).decode("utf-8").split("</b>")[1].split()[0]
-    )
-
-    try:
-        return int(total_number)
-    except ValueError:
-        return 0
+    options=[('class="count-text whitespace-nowrap">#1 / ',' Total</div>'),('class="count-text">#1 / ',' Total</td>')]
+    page_text = str(html.tostring(page_content))
+    for option_beg,option_end in options:
+        if option_beg in page_text:
+            total_number = page_text.split(option_beg)[1].split(option_end)[0]
+            try:
+                return int(total_number)
+            except ValueError:
+                return 0
+    return 0
 
 
 def get_page_urls(page_content, rows, url):
