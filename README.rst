@@ -149,6 +149,13 @@ Note that, if any *optional* fields are left empty, the API will assign them tod
 
     portfolio.create_portfolio('<portfolio-name>', '<path-to-csv-file>')
 
+
+Environment Variables
+======================
+
+Set ``DISABLE_TQDM=1`` in your environment to disable the progress bar.
+
+
 Documentation
 ==============
 
