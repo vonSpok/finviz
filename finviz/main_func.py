@@ -49,17 +49,15 @@ class Stock:
         page_parsed = self._get_page(ticker)
 
         title = page_parsed.cssselect('div[class="fv-container py-2.5"]')[0]
+        keys = ["Ticker", "Company", "Sector", "Industry", "Country", "Exchange"]
 
         data = {}
 
         data["Ticker"] = title.cssselect('h1[class="quote-header_ticker-wrapper_ticker"]')[0].text_content().strip()
         company_details = title.cssselect('h2[class="quote-header_ticker-wrapper_company"]')[0]
         data["Company"] = company_details.text_content().strip()
-
         company_link = company_details.cssselect('a[class="tab-link block truncate"]')[0].attrib["href"]
-
         data["Website"] = company_link if company_link.startswith("http") else None
-        keys = ["Sector", "Industry", "Country", "Exchange"]
         fields = [f.text_content() for f in title.cssselect('a[class="tab-link"]')]
 
         data.update(dict(zip(keys, fields)))
