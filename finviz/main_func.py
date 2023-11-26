@@ -54,7 +54,10 @@ class Stock:
         data = {}
 
         data["Ticker"] = title.cssselect('h1[class="js-recent-quote-ticker quote-header_ticker-wrapper_ticker"]')[0].text_content().strip()
-        company_details = title.cssselect('h2[class="quote-header_ticker-wrapper_company"]')[0]
+        try:
+            company_details = title.cssselect('h2[class="quote-header_ticker-wrapper_company text-xl"]')[0]
+        except IndexError:
+            company_details = title.cssselect('h2[class="quote-header_ticker-wrapper_company"]')[0]
         data["Company"] = company_details.text_content().strip()
 
         try:
