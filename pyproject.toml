@@ -6,7 +6,17 @@ authors = ["Spok <hackershit@yandex.ru>"]
 readme = "README.rst"
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = "^3.9"
+beautifulsoup4 = "^4.9.3"
+requests = "^2.25.1"
+aiohttp = "^3.7.4"
+lxml = "^4.9.2"
+urllib3 = "^1.26.5"
+user_agent = "^0.1.9"
+cssselect = "^1.1.0"
+tqdm = "^4.61.1"
+tenacity = "^7.0.0"
+
 
 [build-system]
 requires = ["setuptools"]
