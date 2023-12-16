@@ -3,7 +3,8 @@ name = "finviz"
 version = "1"
 description = ""
 authors = ["Spok <hackershit@yandex.ru>"]
-readme = "README.rst"
+license = "MIT License"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -19,5 +20,5 @@ tenacity = "^7.0.0"
 
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
