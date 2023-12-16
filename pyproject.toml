@@ -5,12 +5,9 @@ description = ""
 authors = ["Spok <hackershit@yandex.ru>"]
 readme = "README.rst"
 
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
 [tool.poetry.dependencies]
 python = ">=3.9"
 
-[tools.setuptools]
-packages = ["finviz"]
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
