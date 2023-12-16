@@ -1,32 +1,16 @@
+[tool.poetry]
+name = "finviz"
+version = "1"
+description = ""
+authors = ["Spok <hackershit@yandex.ru>"]
+readme = "README.rst"
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages]
-find = {}
-
-[project]
-name = "finviz-platform"
-version = "0.0.1"
-authors = [
-    {name = "Alberto Rincones", email = "code4road@gmail.com"},
-]
-description = "Finviz scrapper with additinal datascience functionality"
-keywords = ["finviz", "finance", "datascience"]
-dependencies =[
-    "wheel",
-    "lxml",
-    "requests",
-    "aiohttp",
-    "urllib3",
-    "cssselect",
-    "user_agent",
-    "beautifulsoup4",
-    "tqdm",
-    "tenacity",
-]
-
-requires-python = ">=3.8"
+[tool.poetry.dependencies]
+python = ">=3.9"
 
 [tools.setuptools]
 packages = ["finviz"]
