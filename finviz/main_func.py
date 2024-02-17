@@ -70,23 +70,26 @@ class Stock:
 
         data.update(dict(zip(keys, fields)))
 
-        all_rows = [
-            row.xpath("td//text()")
-            for row in page_parsed.cssselect('tr[class="table-dark-row"]')
-        ]
+        td_texts = []
 
-        for row in all_rows:
-            for column in range(0, 11, 2):
-                if row[column] == "EPS next Y" and "EPS next Y" in data.keys():
-                    data["EPS growth next Y"] = row[column + 1]
-                    continue
-                elif row[column] == "Volatility":
-                    vols = row[column + 1].split()
-                    data["Volatility (Week)"] = vols[0]
-                    data["Volatility (Month)"] = vols[1]
-                    continue
+        for tr in page_parsed.cssselect('tr[class="table-dark-row"]'):
+            tds = tr.xpath("td//text()")
+            for td in tds:
+                text = td.strip()
+                if text and text != 'Trades':
+                    td_texts.append(text)
 
-                data[row[column]] = row[column + 1]
+        for key, value in dict(zip(td_texts[::2], td_texts[1::2])).items():
+            if key == "EPS next Y" and "EPS next Y" in data.keys():
+                data["EPS growth next Y"] = value
+                continue
+            elif key == "Volatility":
+                vols = value.split()
+                data["Volatility (Week)"] = vols[0]
+                data["Volatility (Month)"] = vols[1]
+                continue
+
+            data[key] = value
 
         return data
 
