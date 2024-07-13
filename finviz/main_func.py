@@ -48,7 +48,7 @@ class Stock:
 
         page_parsed = self._get_page(ticker)
 
-        title = page_parsed.cssselect('div[class="fv-container py-2.5"]')[0]
+        title = page_parsed.cssselect('div[class="fv-container py-2.5 "]')[0]
         keys = ["Ticker", "Company", "Sector", "Industry", "Country", "Exchange"]
 
         data = {}
